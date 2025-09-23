@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Song {
+  id        Int      @id @default(autoincrement())
+  title     String
+  artist    String
+  album     String?
+  year      Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  plays     Play[]
+}
+
+model Play {
+  id       Int      @id @default(autoincrement())
+  userId   String   @db.Uuid
+  songId   Int
+  playedAt DateTime @default(now())
+  song     Song     @relation(fields: [songId], references: [id])
+
+  // --- ÍNDICES ---
+
+  // Otimiza a busca por todas as músicas tocadas por um usuário específico.
+  @@index([userId])
+
+  // Otimiza a operação de JOIN com a tabela 'Song'.
+  // Boa prática para chaves estrangeiras.
+  @@index([songId])
+
+  // Otimização Principal
+  // Este é o índice composto que acelera a busca por músicas mais
+  // tocadas em um período de tempo.
+  @@index([playedAt, songId])
+}
