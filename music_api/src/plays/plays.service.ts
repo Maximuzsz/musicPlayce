@@ -6,8 +6,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import { CreatePlayDto } from './dto/create-play.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { SongService } from 'src/song/song.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { SongService } from '../song/song.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -25,16 +25,17 @@ export class PlaysService {
 
     try {
       return await this.prisma.play.create({
-        data: createPlayDto,
+        data: {
+          userId: createPlayDto.userId,
+          songId: createPlayDto.songId,
+        },
       });
     } catch (error) {
       this.logger.error(
         `Failed to create play record for songId: ${createPlayDto.songId}`,
         error.stack,
       );
-      throw new InternalServerErrorException(
-        'Could not create play record.',
-      );
+      throw new InternalServerErrorException('Could not create play record.');
     }
   }
 
@@ -54,7 +55,6 @@ export class PlaysService {
       if (topPlays.length === 0) {
         return [];
       }
-      
       const songIds = topPlays.map((play) => play.songId);
       const songs = await this.prisma.song.findMany({
         where: { id: { in: songIds } },
@@ -65,10 +65,8 @@ export class PlaysService {
         ...songsMap.get(play.songId),
         playCount: play._count.songId,
       }));
-      
       topSongs.sort((a, b) => b.playCount - a.playCount);
       return topSongs;
-
     } catch (error) {
       this.logger.error('Failed to get top songs.', error.stack);
       throw new InternalServerErrorException('Could not retrieve top songs.');
@@ -86,16 +84,18 @@ export class PlaysService {
           ORDER BY play_count DESC
           LIMIT 10;
       `;
-      
       const result = await this.prisma.$queryRaw<
-        { song_id: number; title: string; artist: string; play_count: bigint }[]
+        {
+          song_id: number;
+          title: string;
+          artist: string;
+          play_count: bigint;
+        }[]
       >(query);
-      
       return result.map((song) => ({
         ...song,
         play_count: Number(song.play_count),
       }));
-
     } catch (error) {
       this.logger.error('Failed to get top songs with raw query.', error.stack);
       throw new InternalServerErrorException('Could not retrieve top songs.');

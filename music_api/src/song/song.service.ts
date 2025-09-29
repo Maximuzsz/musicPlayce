@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -7,13 +9,17 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSongDto } from './dto/create-song.dto';
+import { PlaysService } from '../plays/plays.service';
 
 @Injectable()
 export class SongService {
-  // Logger para registrar erros com mais detalhes no servidor
   private readonly logger = new Logger(SongService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @Inject(forwardRef(() => PlaysService))
+    private playsService: PlaysService,
+    private prisma: PrismaService,
+  ) {}
 
   async create(createSongDto: CreateSongDto) {
     const { title, artist } = createSongDto;

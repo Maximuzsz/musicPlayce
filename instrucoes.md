@@ -10,7 +10,7 @@ Docker
 
 Docker Compose
 
-2. Configuração Inicial
+2. Configuração Inicd
 Siga estes passos uma única vez para preparar o projeto.
 
 a) Clone o Repositório

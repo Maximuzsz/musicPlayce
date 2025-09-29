@@ -1,20 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class CreatePlayDto {
   @ApiProperty({
-    description: 'O ID do usuário que tocou a música (formato UUID)',
-    example: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    description: 'O ID do usuário que tocou a música.',
+    example: 12,
   })
-  @IsUUID()
-  @IsNotEmpty()
-  userId: string;
+  @Type(() => Number)
+  @IsInt()
+  @IsNotEmpty({ message: 'O ID do usuário não pode estar vazio.' })
+  userId: number;
 
   @ApiProperty({
-    description: 'O ID da música que foi tocada',
+    description: 'O ID da música que foi tocada.',
     example: 1,
   })
-  @IsInt()
-  @IsNotEmpty()
+  @IsInt({ message: 'O ID da música deve ser um número inteiro.' })
+  @IsNotEmpty({ message: 'O ID da música não pode estar vazio.' })
   songId: number;
 }

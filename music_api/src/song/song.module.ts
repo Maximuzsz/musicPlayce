@@ -1,8 +1,8 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
 import { SongController } from './song.controller';
 import { SongService } from './song.service';
-import { PlaysModule } from 'src/plays/plays.module';
+import { PlaysModule } from '../plays/plays.module';
 
 @Module({
   imports: [PrismaModule, forwardRef(() => PlaysModule)],
